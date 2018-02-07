@@ -389,12 +389,14 @@ RCT_EXPORT_METHOD(pay:(NSDictionary *)data
     // TODO(Yorkie)
     if ([req isKindOfClass:[LaunchFromWXReq class]]) {
         LaunchFromWXReq *request = (LaunchFromWXReq *)req;
-        NSString *message = request.message.messageExt;
+        NSString *rawText = request.message.messageExt;
+        
+        // Json parse
+        NSData *objectData = [rawText dataUsingEncoding:NSUTF8StringEncoding];
+        NSDictionary *data = [NSJSONSerialization JSONObjectWithData:objectData
+                                                             options:NSJSONReadingMutableContainers
+                                                               error:nil];
         NSMutableDictionary *body = @{}.mutableCopy;
-        NSDictionary *data = @{
-                               @"type" : @"lala",
-                               @"data" : message
-                               };
         body[@"data"] = data;
         body[@"type"] = @"LaunchFromWX.Req";
         [self.bridge.eventDispatcher sendDeviceEventWithName:RCTWXEventName body:body];
